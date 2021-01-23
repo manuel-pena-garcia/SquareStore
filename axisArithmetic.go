@@ -1,22 +1,5 @@
 package squarestore
 
-/*Path represents the option select between X and Y axis or main diagonal to go through the SquareStore structure.*/
-type Path uint
-
-const (
-	xAxis Path = iota
-	yAxis
-	diagonal
-)
-
-/*Origin represents the starting point of a way through the SquareStore structure.*/
-type Origin uint
-
-const (
-	beginning Origin = iota
-	end
-)
-
 func isInXAxis(position int64) (bool, int64) {
 	x, y := isPerfectSquare(position - 1)
 
@@ -75,9 +58,4 @@ func checkInDiagonalBetweenBounds(n int64, left int64, right int64) (bool, int64
 		/*We have a match as n == rs*/
 		return true, t - 1
 	}
-}
-
-func RetrieveBestPath(position int64) (Origin, Path) {
-	//TODO
-	return 0, 0
 }
