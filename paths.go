@@ -1,6 +1,7 @@
 package squarestore
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -22,8 +23,14 @@ const (
 )
 
 /*RetrieveBestPath retrieves the fastest way to get to a given position through the SquareStore structure*/
-func RetrieveBestPath(position int64, max int64) (Origin, Path) {
-	maxroot := int64(math.Sqrt(float64(max)))
+func (s *Square) retrieveBestPath(position int64) (Origin, Path, int64, error) {
+	var err error
+
+	if s.last == nil {
+		err = fmt.Errorf("The SquareStore is empty")
+	} else if position > s.last.position {
+		err = fmt.Errorf("Index out of bounds")
+	}
 
 	root := int64(math.Sqrt(float64(position)))
 
@@ -32,7 +39,7 @@ func RetrieveBestPath(position int64, max int64) (Origin, Path) {
 	var first Origin
 	var second Path
 
-	if maxroot-root > root {
+	if s.maxroot-root > root {
 		first = beginning
 	} else {
 		first = end
@@ -43,7 +50,7 @@ func RetrieveBestPath(position int64, max int64) (Origin, Path) {
 	} else if rest == 1 {
 		second = xAxis
 	} else if rest > (root/2 + 1) {
-		if (root+1)*(root+1) <= max && rest > 3*root/2 {
+		if (root+1)*(root+1) <= s.last.position && rest > 3*root/2 {
 			second = yAxis
 		} else {
 			second = diagonal
@@ -52,5 +59,5 @@ func RetrieveBestPath(position int64, max int64) (Origin, Path) {
 		second = xAxis
 	}
 
-	return first, second
+	return first, second, root, err
 }

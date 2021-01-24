@@ -1,11 +1,12 @@
 package squarestore
 
-import "fmt"
+import "log"
 
 /*Square represents the SquareStore structure, pointing to its first and last Nodes*/
 type Square struct {
-	first *Node
-	last  *Node
+	first   *Node
+	last    *Node
+	maxroot int64
 }
 
 /*Insert allows to insert an element at the end of the structure*/
@@ -13,12 +14,17 @@ func (s *Square) Insert(c interface{}) {
 
 	var n Node
 
-	lastPosition := s.last.position + 1
-
 	if s.first == nil {
 		n.assembleFirst(c)
+
+		s.first = &n
+		s.last = &n
 	} else {
+		lastPosition := s.last.position + 1
+
 		n.assemble(s.last, s.getLeftNode(lastPosition), s.getDownNode(lastPosition), s.getDDownNode(lastPosition), c)
+
+		s.last = &n
 	}
 }
 
@@ -44,11 +50,65 @@ func (s *Square) Deactivate(position int64) {
 }
 
 func (s *Square) getNodeAt(position int64) *Node {
-	fmt.Println(position)
+	origin, path, steps, err := s.retrieveBestPath(position)
 
-	//TODO
+	if err != nil {
+		log.Fatal(err)
 
-	return nil
+		return nil
+	}
+
+	var n *Node
+
+	stepSq := steps * steps
+	stepSqD := steps*steps - steps + 1
+
+	if origin == beginning {
+		n = s.first
+
+		if path == xAxis {
+			for i := int64(0); i < steps; i++ {
+				n = n.right
+			}
+			for i := stepSq + 1; i < position; i++ {
+				n = n.next
+			}
+		} else if path == yAxis {
+			for i := int64(0); i < steps; i++ {
+				n = n.up
+			}
+			for i := stepSq; i > position; i-- {
+				n = n.previous
+			}
+		} else {
+			for i := int64(0); i < steps; i++ {
+				n = n.dUp
+			}
+			if position > stepSqD {
+				for i := stepSqD; i < position; i++ {
+					n = n.next
+				}
+			} else if position < stepSqD {
+				for i := stepSqD; i > position; i-- {
+					n = n.previous
+				}
+			}
+		}
+	} else {
+		//TODO -> new Path: LAST??
+
+		n = s.last
+
+		if path == xAxis {
+
+		} else if path == yAxis {
+
+		} else {
+
+		}
+	}
+
+	return n
 }
 
 func (s *Square) getLeftNode(position int64) *Node {
@@ -69,6 +129,8 @@ func (s *Square) getDownNode(position int64) *Node {
 	}
 
 	if b, step := isInYAxis(position); b == true {
+		s.maxroot = step + 1
+
 		return s.getNodeAt(step * step)
 	}
 
